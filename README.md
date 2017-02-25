@@ -1,6 +1,6 @@
 # Ergo Server
 
-This project is in early development. Please wait for updates.
+This project is in early development. Please wait for updates or visit [ergo-cms.github.io](https://ergo-cms.github.io) for more information.
 
 
 ## Prerequisites
