@@ -1,0 +1,20 @@
+{{> header}}
+<div class="col-md-6 col-sm-6 col-xs-12"><div class="x_panel">
+<h2>Post Types</h2>
+<ul>
+{{#post_types}}
+<li><a href="{{base_uri}}posts/{{.}}">{{. #pluralise}}</a></li>
+{{/post_types}}
+</ul>
+</div></div>
+
+<div class="col-md-6 col-sm-6 col-xs-12"><div class="x_panel">
+<h2>Recent Changes</h2>
+<ul>
+{{#recent_posts}}
+<li><a href="{{edit_uri}}">{{relPath}}</a></li>
+{{/recent_posts}}
+</ul>
+</div></div>
+
+{{> footer}}

@@ -1,0 +1,157 @@
+{{> header }}
+<style>
+form #content, .content-editor-container{
+	min-height:350px;
+}
+
+</style>
+{{#post}}
+{{#saved}}
+<div class="col-xs-8 col-xs-offset-2 col-md-6 col-xs-offset-1"><div class="alert alert-success alert-dismissible fade in" role="alert">
+	<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
+	</button>
+	Saved!
+</div></div>
+{{/saved}}
+
+<form method="post" class="form-horizontal form-label-left">
+
+<div class="col-md-9 col-sm-12 col-xs-12">
+
+<div class="btn-group pull-right">
+	<input type="submit" class="btn btn-primary submit" value="Save" />
+	<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	    <span class="caret"></span>
+	    <span class="sr-only">Toggle Dropdown</span>
+	  </button>
+	<ul class="dropdown-menu">
+		<li><a href="#" 
+			data-href="{{base_uri}}{{del_uri}}" 
+			data-filename="{{relPath}}" 
+			data-toggle="modal" 
+			data-target="#file_delete"><span title="delete" class="fa fa-trash-o"></span> Delete</a>
+		</li>
+		<li><a href="#" 
+			data-href="{{base_uri}}{{rename_uri}}" 
+			data-filename="{{filename}}" 
+			data-toggle="modal" 
+			data-target="#file_rename"><span title="rename" class="fa fa-random" ></span> Rename</a>
+		<li>
+	</ul>
+</div>
+
+<ul id="" class="nav nav-tabs" role="tablist">
+<li role="presentation" class="active"><a href="#mainFields" id="home-tab" role="tab" data-toggle="tab" aria-expanded="true">Main</a></li>
+<li role="presentation" class=""><a href="#miscFields" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">Misc</a></li>
+<li role="presentation" class=""><a href="#contentPreview" role="tab" id="profile-tab" data-toggle="tab" aria-expanded="false">Preview</a></li>
+</ul>
+<div class="clearfix"></div>
+<div class="x_panel">
+
+
+<div id="" class="tab-content">
+<div role="tabpanel" class="tab-pane fade active in" id="mainFields">
+{{#mainFields {class:"form-control col-md-7 col-xs-12"} }}
+{{if field == 'content' }}
+	<div class="content-editor-container">
+		<textarea name="content">{{formValue}}</textarea>
+		<div id="content"></div>
+	</div>
+{{else}}
+<div class="form-group">
+	<label class="control-label col-md-3 col-sm-3 col-xs-12" for="{{field}}">{{title}}
+	</label>
+	<div class="col-md-6 col-sm-6 col-xs-12">
+		{{{formField}}}
+	</div>
+</div>
+{{endif}}
+{{/mainFields}}</div>
+<div role="tabpanel" class="tab-pane fade" id="miscFields">
+{{#miscFields {class:"form-control col-md-7 col-xs-12"} }}
+{{if type == 'checkbox'}}
+	<div class="checkbox"><label>
+		{{{formField}}}
+	{{title}}</label></div>
+{{else}}
+<div class="form-group">
+	<label class="control-label col-md-3 col-sm-3 col-xs-12" for="{{field}}">{{title}}</label>
+	<div class="col-md-6 col-sm-6 col-xs-12">
+		{{{formField}}}
+	</div>
+</div>
+{{endif}}
+{{/miscFields}}</div>
+<div role="tabpanel" class="tab-pane fade" id="contentPreview">
+</div>
+</div>
+<div>
+	<input type="hidden" value="{{_csrf}}" name="_csrf"/>
+
+	
+</div>
+</div><!--x_panel-->
+</div>
+
+<div id="sidebar" class="col-md-3 col-sm-12 col-xs-12">
+<div class="x_panel">
+{{#sideFields  {class:"col-xs-12"} }}
+{{if type == 'checkbox'}}
+	<div class="checkbox"><label>
+		{{{formField}}}
+	{{title}}</label></div>
+{{else}}
+<div class="form-group form-group-sm">
+	<label for="{{field}}">{{title}}</label>
+	{{{formField}}}
+</div>
+{{endif}}
+{{/sideFields}}
+
+
+</div><!--x_panel-->
+</div>
+
+</form>
+
+<script src="{{base_uri}}js/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="{{base_uri}}js/marked.js" type="text/javascript" charset="utf-8"></script>
+<script src="{{base_uri}}js/textile.min.js" type="text/javascript" charset="utf-8"></script>
+<script>
+	function makePreview(str) {
+		switch ("{{language}}")
+		{
+			case "markdown":
+				str = marked(str);
+				break;
+			case "textile":
+				str = textile.convert(str);
+				break;
+		}
+		return str;
+	}
+
+
+    var editor = ace.edit(document.querySelector("form #content"));
+    editor.setTheme("ace/theme/chrome");
+    editor.session.setMode("ace/mode/{{language}}");
+    editor.setOption("wrap", "free"); //off , 40
+    editor.setOption("selectionStyle", false ? "line" : "text");
+    editor.setHighlightActiveLine(false)
+    editor.setDisplayIndentGuides(false)
+    editor.renderer.setShowGutter(false);
+    editor.renderer.setShowPrintMargin(false);
+    editor.setOption("scrollPastEnd", true);
+	var textarea = document.querySelector('textarea[name="content"]');
+	var preview = document.querySelector('#contentPreview');
+	textarea.style.display = 'none';
+	editor.session.setValue(textarea.value);
+	preview.innerHTML = makePreview(textarea.value)
+	editor.session.on('change', function(){
+	  textarea.value = editor.session.getValue();
+	  preview.innerHTML = makePreview(textarea.value)
+	});
+</script>
+{{/post}}
+{{> file_manip}}
+{{> footer}}

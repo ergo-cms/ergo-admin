@@ -1,0 +1,57 @@
+{{> header }}
+<style>
+form #content, .content-editor-container{
+	min-height:450px;
+}
+.content-editor-container {
+	border: 1px solid #E6E9ED;
+	border-radius: 3px;
+	margin-bottom:2em;
+}
+</style>
+{{#saved}}
+<div class="col-xs-8 col-xs-offset-2 col-md-6 col-md-offset-1"><div class="alert alert-success alert-dismissible fade in" role="alert">
+	<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
+	</button>
+	Saved!
+</div></div>
+{{/saved}}
+
+<form method="post" class="form-horizontal form-label-left">
+<div class="x_panel">
+<div class="content-editor-container">
+	<textarea name="content">{{content}}</textarea>
+	<div id="content"></div>
+</div>
+<div>
+	<input type="hidden" value="{{_csrf}}" name="_csrf"/>
+	<input type="submit" class="btn btn-primary submit" value="Save" />
+</div>
+
+</div><!--x_panel-->
+</form>
+
+<script src="{{base_uri}}js/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="{{base_uri}}js/ace/ext-modelist.js" type="text/javascript" charset="utf-8"></script>
+<script>
+    var editor = ace.edit(document.querySelector("form #content"));
+    editor.setTheme("ace/theme/chrome");
+	var modelist = ace.require("ace/ext/modelist")
+	var mode = modelist.getModeForPath("{{filePath}}").mode
+	editor.session.setMode(mode) // mode now contains "ace/mode/javascript".
+	editor.session.setUseWorker(false);
+    editor.setOption("wrap", "free"); //off , 40
+    editor.setOption("selectionStyle", false ? "line" : "text");
+    editor.setHighlightActiveLine(true)
+    editor.renderer.setShowGutter(true);
+    editor.setDisplayIndentGuides(false);
+    editor.renderer.setShowPrintMargin(false);
+    editor.setOption("scrollPastEnd", true);
+	var textarea = document.querySelector('textarea[name="content"]');
+	textarea.style.display = 'none';
+	editor.session.setValue(textarea.value);
+	editor.session.on('change', function(){
+	  textarea.value = editor.session.getValue();
+	});
+</script>
+{{> footer}}

@@ -1,0 +1,163 @@
+
+<div class="modal fade" id="file_delete" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        	<div class="modal-header">
+                <h2>Confirm Delete</h2>
+            </div>
+            <div class="modal-body">
+            	<p>Really delete '<span id="modal_filename"></span>'?</p>
+            	<p>This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <a class="btn btn-danger btn-ok">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="file_rename" tabindex="-1" role="dialog" aria-hidden="true">
+	<form id="file_rename_form" method="POST" action="">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        	<div class="modal-header">
+                <h2>Rename</h2>
+            </div>
+            <div class="modal-body">
+            	<p>Rename '<span id="modal_filename"></span>':</p>
+            		<input type="text"   name="rename" value="" class="form-control" />
+            		<input type="hidden" name="_csrf"  value="{{_csrf}}" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success btn-ok  btn-default">Rename</button>
+            </div>
+        </div>
+    </div>
+	</form>
+</div>
+
+<div class="modal fade" id="file_chown" tabindex="-1" role="dialog" aria-hidden="true">
+	<form id="file_chown_form" method="POST" action="">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        	<div class="modal-header">
+                <h2>Change Permissions</h2>
+            </div>
+            <div class="modal-body">
+            		TODO
+            		<!--
+            		<input type="text"   name="rename" value="" />
+            		<input type="hidden" name="_csrf"  value="{{_csrf}}" />
+            		-->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <a class="btn btn-danger btn-ok">Change</a>
+            </div>
+        </div>
+    </div>
+	</form>
+</div>
+<style>
+.modal.loading .modal-content:before {
+  content: 'Loading...';
+  text-align: center;
+  line-height: 155px;
+  font-size: 20px;
+  background: rgba(0, 0, 0, .8);
+  position: absolute;
+  top: 55px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  color: #EEE;
+  z-index: 1000;
+}
+</style>
+<script type="text/javascript">
+$(function() {
+	function failed($tr, message) {
+		$tr.addClass("bg-danger");
+		console.error(message);
+		alert(message);
+	}
+
+	$(".modal").keypress(function (e) {
+		if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+			e.preventDefault();
+			$('.btn-default').click();
+			return false;
+		} else {
+			return true;
+		}
+	});
+
+	$('#file_delete').on('click', '.btn-ok', function(e) {
+		var $modalDiv = $(e.delegateTarget);
+		var href = $(this).data('href');
+		var $tr = $('table td a[data-href="'+href+'"]').closest('tr');
+
+		console.info("Deleting: " + href)
+		$modalDiv.addClass('loading');
+		$.post(href, { _csrf:"{{_csrf}}" }).then(
+			function(data) {
+				$modalDiv.modal('hide').removeClass('loading');
+				if (data.substr(0, 2) == 'OK') { // remove the line from the table if all good
+					$tr.find('td').fadeOut().slideUp('fast', function() {
+						$tr.remove();	
+					})
+				}
+				else
+					failed($tr, "Failed to delete: " + data);
+			},
+			function(jqXHR) {
+				$modalDiv.modal('hide').removeClass('loading');
+				failed($tr, "Failed to delete. status="+ jqXHR.status+": "+jqXHR.statusText);
+			}
+			);
+	});
+	$('#file_delete').on('show.bs.modal', function(e) {
+		var data = $(e.relatedTarget).data();
+		$('#modal_filename', this).text(data.filename);
+	    $('.btn-ok'     , this).data('href', data.href);
+	});
+
+	$('#file_rename').on('click', '.btn-ok', function(e) {
+		var $modalDiv = $(e.delegateTarget);
+		var href = $(this).data('href');
+		var $tr = $('table td a[data-href="'+href+'"]').closest('tr');
+
+		var data = $('#file_rename_form').serialize();
+		console.info("Renaming: "+href+", " + data);
+		$modalDiv.addClass('loading');
+		$.post(href, data ).then(
+			function(data) {
+				$modalDiv.modal('hide').removeClass('loading');
+				if (data.substr(0, 2) == 'OK') { // refresh if all good
+					window.location.href=window.location.href;
+				}
+				else
+					failed($tr, "Failed to rename: " + data);
+			},
+			function(jqXHR) {
+				$modalDiv.modal('hide').removeClass('loading');
+				failed($tr, "Failed to rename. status="+jqXHR.status+": "+jqXHR.statusText);
+			}
+			);
+	});
+	$('#file_rename').on('show.bs.modal', function(e) {
+		var data = $(e.relatedTarget).data();
+		$('#modal_filename'     , this).text(data.filename);
+		$('input[name="rename"]', this).val(data.filename);
+	    $('.btn-ok'             , this).data('href', data.href);
+	});
+
+	$('#file_chown').on('show.bs.modal', function(e) {
+		var data = $(e.relatedTarget).data();
+		$('#modal_filename'   , this).text(data.filename);
+	    $('.btn-ok'        , this).data('href', data.href);
+	});
+
+})
+</script>
