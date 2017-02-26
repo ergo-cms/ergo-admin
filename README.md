@@ -122,6 +122,6 @@ This Apache config may be of assistance (from [Stackoverflow](http://serverfault
 Everyone uses [pm2](https://www.npmjs.com/package/pm2):
 
 ```
-pm2 start app.js
+pm2 start app.js --watch
 ```
 

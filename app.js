@@ -41,8 +41,11 @@ pam.authenticate('myusername', 'mysecretpassword', function(err) {
     }
   });
 */
-var router = new Router();
-var publicRoutes = new Router();
+var RouterOptions = {};
+if (config.base_uri!=='/')
+	RouterOptions.prefix = path.posix.join(RouterOptions.base_uri, 'x').slice(0,-2)
+var router = new Router(RouterOptions);
+var publicRoutes = new Router(RouterOptions);
 
 const csrfOptions = {secret:"csrf:sess"};
 var formGet = compose([lusca.csrf(csrfOptions)])
