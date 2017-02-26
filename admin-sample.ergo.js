@@ -1,5 +1,6 @@
 module.exports = {
 	keys: [
+		"run node gen-keys.js to genereate new keys",
 		"mwVDRlPTl1tcEE3E6N1gW5Bds/d4Gx8o",
 		"9KLjZQSeGhmqCjHfZ1vqjVJ3mzAXtVpd",
 		"3gtuh5BJWOPJoiDtR902c7taRa8tDYg5",
@@ -15,7 +16,8 @@ module.exports = {
 		users: [ // for basic only
 			{
 				username: "admin",
-				passwordHash: "$2a$10$rOEl7nVIG1h.eQnQnJYCbOwq8qkc/sVUQVF15GYrkVhCF3yRWlOxC", //==pass1234. Use 'node gen-pass.js newpass' to generate a new hash
+				//==pass1234. Use 'node gen-pass.js newpass' to generate a new hash
+				passwordHash: "$2a$10$rOEl7nVIG1h.eQnQnJYCbOwq8qkc/sVUQVF15GYrkVhCF3yRWlOxC", 
 				name: "Administrator", // if omitted, username is used
 			},
 		]

@@ -25,7 +25,12 @@ var compose = require('koa-compose');
 var Router = require('koa-router'); 
 var koaBody = require('koa-body');
 var send = require('koa-send');
-var render = require('koa-usematch')(_.extend({ defaults: require('./lib/filters')}, { defaults: config.default_fields }));
+var render = require('koa-usematch')(
+	{
+		views: path.join(__dirname, 'views'),
+		partials: path.join(__dirname, 'partials'),
+		defaults: _.extend(require('./lib/filters'), config.default_fields)
+	});
 var auth = require('./lib/auth')(config.auth)
 
 var l = debug;
