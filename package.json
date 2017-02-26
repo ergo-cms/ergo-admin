@@ -18,7 +18,6 @@
   },
   "homepage": "https://github.com/ergo-cms/ergo-server#readme",
   "dependencies": {
-    "authenticate-pam": "^1.0.2",
     "bcrypt-nodejs": "0.0.3",
     "bluebird": "^3.4.7",
     "co": "^4.6.0",
@@ -37,5 +36,8 @@
     "koa-serve": "^0.1.7",
     "koa-session": "^3.4.0",
     "koa-usematch": "latest"
-  }
+  },
+	"optionalDependencies": {
+	    "authenticate-pam": "^1.0.2"
+	}
 }
