@@ -7,12 +7,11 @@ module.exports = {
 		"Q9Bcy0c9cnSaPxL7ODIik695LCTEpHt+",
 		"F8AAQrBanuAKbr21fkgLbQtCfnLwr9NZ",
 		],
-	project: '../themetester/config.ergo.js', 
+	project: '../some_ergo_project/config.ergo.js', 
 	//port: 3000,
 
 	auth: { 
 		type:"basic",
-		//auto_login: "admin",
 		users: [ // for basic only
 			{
 				username: "admin",
@@ -37,7 +36,7 @@ module.exports = {
 	},
 	
 	template: {
-		page: { // page is the default post type, so it MUST be defined
+		page: { // page is the default post type (generally), so it MUST be defined.
 			title: { },
 			subtitle: { },
 			image: { type:"image"},

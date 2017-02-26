@@ -26,6 +26,7 @@ On your server, install to a folder *outside* the public folder and *outside* th
 git clone https://github.com/ergo-cms/ergo-server.git
 cd ergo-server
 npm install --production
+cp admin-sample.ergo.js admin.ergo.js
 ```
 
 2. Generate new random keys:
