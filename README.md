@@ -23,9 +23,9 @@ On your server, install to a folder *outside* the public folder and *outside* th
 1. Type these:
 
 ```
-mkdir ergo-server
+git clone https://github.com/ergo-cms/ergo-server.git
 cd ergo-server
-npm install ergo-server --production
+npm install --production
 ```
 
 2. Generate new random keys:
@@ -81,6 +81,14 @@ module.exports = {
 	...
 ```
 
+5. Change Port:
+
+In admin.ergo.js:
+
+```
+	port: 3000,
+```
+
 ## Proxy Configuration
 
 Note that not much effort has been expended into hardening this server against all forms of attacks and using the server behind a proxy (using NGINX, Apache, or similar) is recommended. 
@@ -109,4 +117,11 @@ This Apache config may be of assistance (from [Stackoverflow](http://serverfault
  </VirtualHost>
  ```
 
+## Running
+
+Everyone uses [pm2](https://www.npmjs.com/package/pm2):
+
+```
+pm2 start app.js
+```
 

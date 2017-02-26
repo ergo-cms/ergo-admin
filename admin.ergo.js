@@ -7,6 +7,7 @@ module.exports = {
 		"F8AAQrBanuAKbr21fkgLbQtCfnLwr9NZ",
 		],
 	project: '../themetester/config.ergo.js', 
+	//port: 3000,
 
 	auth: { 
 		type:"basic",
