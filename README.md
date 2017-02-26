@@ -93,7 +93,7 @@ In admin.ergo.js:
 
 Note that not much effort has been expended into hardening this server against all forms of attacks and using the server behind a proxy (using NGINX, Apache, or similar) is recommended. 
 
-This Apache config may be of assistance (from [Stackoverflow](http://serverfault.com/questions/739163/run-apache-and-node-js-in-subfolder)):
+This Apache config may be of assistance (from [Stackoverflow](http://serverfault.com/questions/739163/run-apache-and-node-js-in-subfolder), also [this](http://serverfault.com/a/561897/20363)):
 
 ```
 <VirtualHost *:80>

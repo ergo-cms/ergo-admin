@@ -29,17 +29,17 @@ var render = require('koa-usematch')(_.extend({ defaults: require('./lib/filters
 var auth = require('./lib/auth')(config.auth)
 
 var l = debug;
-/*
-var pam = require('authenticate-pam');
-pam.authenticate('myusername', 'mysecretpassword', function(err) {
-    if(err) {
-      console.log(err);
-    }
-    else {
-      console.log("Authenticated!");
-    }
-  });
-*/
+
+function setHeaders(res) {
+	// disable proxy caching
+	//if (!ctx.response.get('Cache-Control')) 
+	res.setHeader('Cache-Control', 'private, proxy-revalidate, s-maxage=0, max-age=86400');
+}
+
+
+
+/////////////////////////
+
 var router = new Router();
 var publicRoutes = new Router();
 
@@ -175,7 +175,7 @@ router.post(base_uri+'file/chown/:filepath', formPost, function *(next) {
 });
 router.get(base_uri+'file/view/:filepath', function *(next) {
 	var f = decodeURIComponent(this.params.filepath);
-	yield send(this, f, { root: project.getBasePath()});
+	yield send(this, f, { root: project.getBasePath(), setHeaders:setHeaders});
 });
 
 // Login ROUTES
@@ -211,7 +211,7 @@ app.use(function *(next){
 	try {
 		var stat = yield fs.statP(path.join(publicDir, relPath));
 		if (stat.isFile())
-			yield send(this, relPath, {root:publicDir, maxage:86400});
+			yield send(this, relPath, {root:publicDir, setHeaders:setHeaders});
 		else
 			yield next;
 	}
