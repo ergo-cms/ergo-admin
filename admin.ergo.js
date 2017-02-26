@@ -11,7 +11,7 @@ module.exports = {
 
 	auth: { 
 		type:"basic",
-		auto_login: "admin",
+		//auto_login: "admin",
 		users: [ // for basic only
 			{
 				username: "admin",

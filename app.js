@@ -24,7 +24,6 @@ var session = require('koa-session');
 var compose = require('koa-compose');
 var Router = require('koa-router'); 
 var koaBody = require('koa-body');
-var favicon = require('koa-favicon');
 var send = require('koa-send');
 var render = require('koa-usematch')(_.extend({ defaults: require('./lib/filters')}, { defaults: config.default_fields }));
 var auth = require('./lib/auth')(config.auth)
