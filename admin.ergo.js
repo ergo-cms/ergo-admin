@@ -31,7 +31,7 @@ module.exports = {
 
 	default_fields: {
 		site_title: 'Ergo',
-		base_uri: '/'
+		base_uri: '/ergo-admin/', // MUST end in /
 	},
 	
 	template: {

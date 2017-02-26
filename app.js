@@ -1,8 +1,9 @@
 "use strict";
 const config = require('./admin.ergo.js');
-
+const base_uri = config.default_fields.base_uri || '/';
 // helper utils
 var path = require('path')
+var posix = path.posix;
 var debug = require('debug')('app')
 var ergo = require('ergo-core');
 var _ = require('ergo-utils')._;
@@ -24,7 +25,6 @@ var compose = require('koa-compose');
 var Router = require('koa-router'); 
 var koaBody = require('koa-body');
 var favicon = require('koa-favicon');
-var serve = require('koa-serve');
 var send = require('koa-send');
 var render = require('koa-usematch')(_.extend({ defaults: require('./lib/filters')}, { defaults: config.default_fields }));
 var auth = require('./lib/auth')(config.auth)
@@ -41,11 +41,8 @@ pam.authenticate('myusername', 'mysecretpassword', function(err) {
     }
   });
 */
-var RouterOptions = {};
-if (config.base_uri!=='/')
-	RouterOptions.prefix = path.posix.join(RouterOptions.base_uri, 'x').slice(0,-2)
-var router = new Router(RouterOptions);
-var publicRoutes = new Router(RouterOptions);
+var router = new Router();
+var publicRoutes = new Router();
 
 const csrfOptions = {secret:"csrf:sess"};
 var formGet = compose([lusca.csrf(csrfOptions)])
@@ -66,28 +63,28 @@ var pageData = function *(app_ctx, new_ctx) {
 
 
 // ROUTES
-router.get('/', function *(next) {
+router.get(base_uri+'', function *(next) {
 	//debug(this)
 	var content = yield require('./models/home')(project);
 	var data = yield pageData(this, _.extend({title:'Home'}, content));
 	debug(data)
 	this.body = yield render('home', data);
 });
-router.get('/settings', function *(next) {
+router.get(base_uri+'settings', function *(next) {
 	var data = yield pageData(this,{title:'Settings', list:yield require('./models/settings')(project)});
 	debug(data)
 	this.body = yield render('keyed_list', data);
 });
-router.get('/posts/', formGet, function *(next) {
+router.get(base_uri+'posts/', formGet, function *(next) {
 	var data = yield pageData(this,{title:'All Posts', files:yield require('./models/posts')(project) });
 	this.body = yield render('files', data);
 });
-router.get('/posts/:post_type', formGet, function *(next) {
+router.get(base_uri+'posts/:post_type', formGet, function *(next) {
 	var title = string.pluralise(string.titleCase(this.params.post_type));
 	var data = yield pageData(this,{title:title, files:yield require('./models/posts')(project, this.params.post_type) });
 	this.body = yield render('files', data);
 });
-router.get('/post/:filepath', formGet, function *(next) {
+router.get(base_uri+'post/:filepath', formGet, function *(next) {
 	var f = path.join(project.getBasePath(),decodeURIComponent(this.params.filepath));
 	var post = new Post(project.getBasePath(), project.getSourcePath(), f)
 	yield post.load(project);
@@ -95,7 +92,7 @@ router.get('/post/:filepath', formGet, function *(next) {
 	var data = yield pageData(this,{title:'Edit Post: ' + post.relPath, post:post});
 	this.body = yield render('post', data);
 });
-router.post('/post/:filepath', formPost, function *(next) {
+router.post(base_uri+'post/:filepath', formPost, function *(next) {
 	var f = path.join(project.getBasePath(),decodeURIComponent(this.params.filepath));
 	var post = new Post(project.getBasePath(), project.getSourcePath(), f);
 	delete this.request.body._csrf;
@@ -104,25 +101,25 @@ router.post('/post/:filepath', formPost, function *(next) {
 	var data = yield pageData(this,{title:'Edit Post: ' + post.relPath, post:post, saved:true});
 	this.body = yield render('post', data);
 });
-router.get('/files/:where', formGet, function *(next) {
+router.get(base_uri+'files/:where', formGet, function *(next) {
 	var files = yield require('./models/files')(project, this.params.where);
 	var data = yield pageData(this,{title:string.singular(string.titleCase(this.params.where)) + ' Files', files:files });
 	//debug(data)
 	this.body = yield render('files', data);
 });
-router.get('/images', formGet, function *(next) {
+router.get(base_uri+'images', formGet, function *(next) {
 	var data = yield pageData(this,{title:'Images', preview:true, files:yield require('./models/images')(project) });
 	//debug(data)
 	this.body = yield render('files', data);
 });
-router.get('/file/text-edit/:filepath', formGet, function *(next) {
+router.get(base_uri+'file/text-edit/:filepath', formGet, function *(next) {
 	var filename = decodeURIComponent(this.params.filepath);
 	var f = path.join(project.getBasePath(),filename);
 	var content = yield fs.readFileP(f, 'utf8');
 	var data = yield pageData(this,{title:filename, content:content, filePath:f });
 	this.body = yield render('file', data);
 });
-router.post('/file/text-edit/:filepath', formPost, function *(next) {
+router.post(base_uri+'file/text-edit/:filepath', formPost, function *(next) {
 	var filename = decodeURIComponent(this.params.filepath);
 	var f = path.join(project.getBasePath(),filename);
 	//var content = yield fs.readFileP(f, 'utf8');
@@ -131,12 +128,12 @@ router.post('/file/text-edit/:filepath', formPost, function *(next) {
 	var data = yield pageData(this,{title:filename, saved:true, content:content, filePath:f });
 	this.body = yield render('file', data);
 });
-router.get('/file/image-edit/:filepath', function *(next) {
+router.get(base_uri+'file/image-edit/:filepath', function *(next) {
 	//this.body = decodeURIComponent(this.params.filepath);
-	this.redirect('/file/view/' + encodeURIComponent(decodeURIComponent(this.params.filepath)));
+	this.redirect(base_uri+'file/view/' + encodeURIComponent(decodeURIComponent(this.params.filepath)));
 	this.status = 302;
 });
-router.post('/file/delete/:filepath', formPost, function *(next) {
+router.post(base_uri+'file/delete/:filepath', formPost, function *(next) {
 	// this is via an ajax request only
 	var filename = decodeURIComponent(this.params.filepath);
 	var f = path.join(project.getBasePath(),filename);
@@ -151,7 +148,7 @@ router.post('/file/delete/:filepath', formPost, function *(next) {
 	yield p;
 	
 });
-router.post('/file/rename/:filepath', formPost, function *(next) {
+router.post(base_uri+'file/rename/:filepath', formPost, function *(next) {
 	// this is via an ajax request only
 	var filename = decodeURIComponent(this.params.filepath);
 	var tofilename = this.request.body.rename;
@@ -167,7 +164,7 @@ router.post('/file/rename/:filepath', formPost, function *(next) {
 	})
 	yield p;
 });
-router.post('/file/chown/:filepath', formPost, function *(next) {
+router.post(base_uri+'file/chown/:filepath', formPost, function *(next) {
 	// this is via an ajax request only
 	var filename = decodeURIComponent(this.params.filepath);
 	var f = path.join(project.getBasePath(),filename);
@@ -177,51 +174,52 @@ router.post('/file/chown/:filepath', formPost, function *(next) {
 	debug('file chown: ' + f)
 	this.body = "TODO: OK " + decodeURIComponent(this.params.filepath);
 });
-router.get('/file/view/:filepath', function *(next) {
+router.get(base_uri+'file/view/:filepath', function *(next) {
 	var f = decodeURIComponent(this.params.filepath);
 	yield send(this, f, { root: project.getBasePath()});
 });
 
 // Login ROUTES
-publicRoutes.get('/login', formGet, function *(next) {
+publicRoutes.get(base_uri+'login', formGet, function *(next) {
 	if (config.auth.auto_login) {
 		yield auth.validate.call(this, next);
-		this.redirect('/');
+		this.redirect(base_uri+'');
 		this.status = 302;	
 		return;	
 	}
 	this.body = yield render('login', {_csrf:this.state._csrf});
 });
-publicRoutes.post('/login', formPost, auth.validate, function *(next) {
+publicRoutes.post(base_uri+'login', formPost, auth.validate, function *(next) {
 	l("%j", this.request.body);
-	this.redirect('/');
+	this.redirect(base_uri+'');
 	this.status = 302;
 
 });
-publicRoutes.get('/logout', function *(next) {
+publicRoutes.get(base_uri+'logout', function *(next) {
 	this.session.user = undefined;
-	this.redirect('/login');
+	this.redirect(base_uri+'login');
 	this.status = 302;
 });
 
 var app = koa();
 app.keys = config.keys;
 app.use(logger());
-app.use(favicon(__dirname + '/public/favicon.ico'));
+
 app.use(function *(next){
-	var callnext = false;
-	
-	// all of this is b/c serve doesn't allow us to set max age & screws with 404 :(
-	yield (serve(['css','images','fonts','js'], path.join(__dirname, 'public'))).call(this,function*() {callnext = true;});
-	
-    if (this.status == 404) {
-    	callnext = true;
-    }
-    if (!callnext && this.body) {
-	    this.set('Cache-Control', 'max-age=86400'); //1day for static resources
+	// Serve static files in public folder
+	var relPath = posix.relative(base_uri, this.path); // chop off the base_uri & leave us with a relative path only (eg 'css/styles.css')
+	const publicDir = path.join(__dirname, 'public'); 
+	try {
+		var stat = yield fs.statP(path.join(publicDir, relPath));
+		if (stat.isFile())
+			yield send(this, relPath, {root:publicDir, maxage:86400});
+		else
+			yield next;
 	}
-	if (callnext)
+	catch(e) {
 		yield next;
+	}
+
 });
 	
 app.use(session(config.session, app));
@@ -236,7 +234,7 @@ app.use(function *(next){
     yield next;
   } catch (err) {
     if (401 == err.status) {
-		this.redirect('/login');
+		this.redirect(base_uri+'login');
 		this.status = 302;
     } else {
       throw err;
