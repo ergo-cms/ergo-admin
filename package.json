@@ -1,6 +1,6 @@
 {
   "name": "ergo-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Admin server for ergo-cms",
   "main": "app.js",
   "scripts": {
@@ -37,7 +37,7 @@
     "koa-session": "^3.4.0",
     "koa-usematch": "latest"
   },
-	"optionalDependencies": {
-	    "authenticate-pam": "^1.0.2"
-	}
+  "optionalDependencies": {
+    "authenticate-pam": "^1.0.2"
+  }
 }
